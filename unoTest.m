@@ -1,6 +1,6 @@
 %% This file performs the first test.
 
-function [bestw, bestr, fig] = firstTest(contents) 
+function [bestw, bestr, fig] = unoTest(contents) 
 
     %-----------------------------------------------------------------
     % First test - find the count and odds of each number, then plot:
@@ -22,6 +22,9 @@ function [bestw, bestr, fig] = firstTest(contents)
         end
     end
     
+    % Give people something to look at while analysis occurs:
+    fprintf(newline + "Initializing..." + newline);
+        
     data1 = string(table2array(contents(1:goodlen, "First ball:")));
     data2 = string(table2array(contents(1:goodlen, "Second ball:")));
     data3 = string(table2array(contents(1:goodlen, "Third ball:")));
@@ -30,50 +33,31 @@ function [bestw, bestr, fig] = firstTest(contents)
     data6 = string(table2array(contents(1:goodlen, "Powerball:")));
     
     % White balls:
-    for b = 1:69
-    
-        count = 0;
-
-        % Give people something to look at while analysis occurs:
-        fprintf("The time remaining on white is: " + (69-b) + newline);
-        
+    for b = 1:69                                    % white ball number      
+        count = 0;   
         for c = 1:goodlen
-            if str2double(data1(c)) == b
-                count = count + 1;
-            end
-            if str2double(data2(c)) == b
-                count = count + 1;
-            end
-            if str2double(data3(c)) == b
-                count = count + 1;
-            end
-            if str2double(data4(c)) == b
-                count = count + 1;
-            end
-            if str2double(data5(c)) == b
+            if ((str2double(data1(c)) == b) || (str2double(data2(c)) == b) || ...
+                    (str2double(data3(c)) == b) || (str2double(data4(c)) == b) || ...
+                    (str2double(data5(c)) == b))
                 count = count + 1;
             end
         end
     
-        y(b) = count;
+        y(b) = count;                       % Number of times b (the white ball) was drawn within this year.
         z(b) = y(b) / length(data1);        % The denominator is how many drawings there have been
     
     end
     
     % Red balls:
     for b = 1:26
-    
         count = 0;
-        
-        fprintf("The time remaining on red is: " + (26-b) + newline);
-        
         for c = 1:goodlen
             if str2double(data6(c)) == b
                 count = count + 1;
             end
         end
     
-        y2(b) = count;
+        y2(b) = count;                        % Number of times b (the red ball) was drawn within this year.
         z2(b) = y2(b) / length(data6);        % The denominator is how many red balls have been pulled.
     end
     
@@ -126,4 +110,5 @@ function [bestw, bestr, fig] = firstTest(contents)
     bestr = sortrows(bestr', 2, "descend")';
     bestr = bestr(1, :);
 
+    fprintf("Initialization Complete!" + newline);
 end

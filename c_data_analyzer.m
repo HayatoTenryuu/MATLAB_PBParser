@@ -1,13 +1,13 @@
 %% This file pulls the exported data and does some analysis.
 
-function [w, r, fig] = c_data_analyzer()
+function [w, r, fig, big] = c_data_analyzer()
 
     %--------
     % Setup:
     %--------
     clear
-    clc
-    
+    set(0,'DefaultFigureVisible','off');
+
     data1 = [];
     data2 = [];
     data3 = [];
@@ -31,11 +31,14 @@ function [w, r, fig] = c_data_analyzer()
     
     [w, r, fig] = unoTest(contents);
     
-    %-------------------------
-    % Perform the Second Test:
-    %-------------------------
+    %-----------------------------------------------
+    % Perform the Second Test, starting 5 years ago:
+    %-----------------------------------------------
 
-    
+    nowdate = char(datetime("today"));
+    startyear = str2double(nowdate( length(nowdate)-3 : length(nowdate))) - 5;
+    big = duoTest(contents, startyear);
+
     %-------------------------
     %   Output data to file:
     %-------------------------
@@ -61,15 +64,21 @@ function [w, r, fig] = c_data_analyzer()
         delete(filename);
     end
 
-    writematrix("White Ball:", filename, Sheet = 1, Range = "C4");
+    writematrix("White Ball:", filename, Sheet = 1, Range = "C3");
+    writematrix("Often:", filename, Sheet = 1, Range = "D4");
+    writematrix("Mid:", filename, Sheet = 1, Range = "E4");
+    writematrix("Rare:", filename, Sheet = 1, Range = "F4");
     writematrix(w(1:23)', filename, Sheet = 1, Range = "D5");
     writematrix(w(24:46)', filename, Sheet = 1, Range = "F5");
     writematrix(w(47:69)', filename, Sheet = 1, Range = "H5");
 
     writematrix("Red Ball:", filename, Sheet = 1, Range = "C29");
-    writematrix(r(1:8)', filename, Sheet = 1, Range = "D30");
-    writematrix(r(9:17)', filename, Sheet = 1, Range = "F30");
-    writematrix(r(18:26)', filename, Sheet = 1, Range = "H30");
+    writematrix("Often:", filename, Sheet = 1, Range = "D30");
+    writematrix("Mid:", filename, Sheet = 1, Range = "E30");
+    writematrix("Rare:", filename, Sheet = 1, Range = "F30");    
+    writematrix(r(1:8)', filename, Sheet = 1, Range = "D31");
+    writematrix(r(9:17)', filename, Sheet = 1, Range = "F31");
+    writematrix(r(18:26)', filename, Sheet = 1, Range = "H31");
 
     for a = 1:length(table2array(contents(:, "Date:")))
         if cell2mat(table2array(contents(a, "Date:"))) == ""
@@ -111,8 +120,9 @@ function [w, r, fig] = c_data_analyzer()
     if isfile(filename)
         delete(filename);
     end
+    
     saveas(fig, filename);
     fig.Visible = "off";
 
-    return;
+    set(0,'DefaultFigureVisible','on');
 end

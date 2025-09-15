@@ -25,6 +25,7 @@ classdef App < matlab.apps.AppBase
         a = [];
         b = [];
         c = figure("Visible","off");
+        d = [];
     end
     
     % Callbacks that handle component events
@@ -32,6 +33,7 @@ classdef App < matlab.apps.AppBase
 
         % Code that executes after component creation
         function startupFcn(app)
+            clc
             app.Image.Visible = "off";
             app.Image_2.Visible = "off";
             app.Image_3.Visible = "off";
@@ -40,14 +42,16 @@ classdef App < matlab.apps.AppBase
 
         % Button pushed function: ImportHistoricalDataButton
         function ImportHistoricalDataButtonPushed(app, event)
-
+            fprintf("Downloading..." + newline);
+            
             % Loading image on:
             app.Image.Visible = "on";
             drawnow;
 
             % Download powerball data:
             a_site_scraper;
-
+            fprintf("Download Complete!" + newline);
+            
             % Done label on:
             app.Image.Visible = "off";
             app.Label_6.Text = "Done!";
@@ -56,6 +60,7 @@ classdef App < matlab.apps.AppBase
 
         % Button pushed function: OrganizeDataButton
         function OrganizeDataButtonPushed(app, event)
+            fprintf(newline + "Tidying things up..." + newline);
 
             % Loading image on:
             app.Image_2.Visible = "on";
@@ -68,6 +73,8 @@ classdef App < matlab.apps.AppBase
             app.Image_2.Visible = "off";
             app.Label_3.Text = "Done!";
             drawnow;
+
+            fprintf("All done!" + newline);
         end
 
         % Button pushed function: AnalyzeDataButton
@@ -78,27 +85,50 @@ classdef App < matlab.apps.AppBase
             drawnow;
 
             % Analyze data:
-            [app.a, app.b, app.c] = c_data_analyzer();
+            [app.a, app.b, app.c, app.d] = c_data_analyzer();
 
             % Done label on:
             app.Image_3.Visible = "off";
             app.Label_4.Text = "Done!";
             drawnow;
-        end
 
+            fprintf("Analysis Complete!" + newline);
+        end
+        
         % Button pushed function: GiveMeSuggestionsButton
         function GiveMeSuggestionsButtonPushed(app, event)
-
+            choice = 0;
+            %fprintf("d is " + string(app.d) + newline);
+            
             % Get number of recommendations from user:
-            prompt = {"I have two methods of picking lottery numbers, " + ...
-                "and I will do each for you. How many sets of lottery " + ...
-                "picks do you want?"};
+            fontformat = '\fontsize{9}';
+            prompt = {fontformat + "I will use the two best schemas, but " + ...
+                "would you like to use the recent best 2 or the overall best 2?"};
+            dlgtitle = "Which top schemas should we use?";
+            optsa.Interpreter = 'tex';
+            optsa.WindowStyle = 'modal';
+            optsa.Default='Recent Best';
+            answer1 = questdlg(prompt, dlgtitle, 'Recent Best', 'Overall Best', 'Cancel', optsa);
+            
+            switch answer1
+                case 'Recent Best'
+                    choice = 1;
+                case 'Overall Best'
+                    choice = 2;
+                case 'Cancel'
+                    return;
+            end
+
+            fontformat = '\fontsize{9}';
+            prompt = {fontformat + "How many sets of lottery picks do you want?"};
             dlgtitle = "How many suggestions should I generate?";
             fieldsize = [1 65];
-            answer = inputdlg(prompt,dlgtitle,fieldsize);
+            optsa.Interpreter = 'tex';
+            optsa.WindowStyle = 'modal';
+            answer2 = inputdlg(prompt, dlgtitle, fieldsize, "1", optsa);
             
             % Create recommendations:
-            if length(answer) > 0 && str2double(cell2mat(answer(1))) >= 1
+            if length(answer2) > 0 && str2double(cell2mat(answer2(1))) >= 1
                 
                 % Loading image on:
                 app.Image_4.Visible = "on";
@@ -111,14 +141,27 @@ classdef App < matlab.apps.AppBase
                 for q = 1:last
                     finder = locale(q).name;
                     if finder == "Your Recommendations"
-                        rmdir("Your Recommendations\", "s");
+                        fclose("all");
+                        rmdir("Your Recommendations", "s");
                     end
                 end
                 
+                % Extract the top 2 schemas from the analysis
+                if choice == 1
+                    big1 = [app.d(1), app.d(4)];
+                    big2 = [app.d(2), app.d(5)];
+                    bigr = [app.d(3), app.d(6)];
+                elseif choice == 2
+                    big1 = [app.d(7), app.d(10)];
+                    big2 = [app.d(8), app.d(11)];
+                    bigr = [app.d(9), app.d(12)];
+                else
+                    return;
+                end
 
                 % Run recommendations script as often as requested:
-                for q = 1:str2double(cell2mat(answer(1)))
-                    d_make_recommendation(app.a, app.b, app.c, q);
+                for q = 1:str2double(cell2mat(answer2(1)))
+                    d_make_recommendation(app.a, app.b, app.c, big1, big2, bigr, q, choice);
                 end
 
                 % Done label on:
@@ -142,44 +185,47 @@ classdef App < matlab.apps.AppBase
             pathToMLAPP = fileparts(mfilename('fullpath'));
 
             % Create UIFigure and hide until all components are created
-            app.UIFigure = uifigure('Visible', 'off');
-            app.UIFigure.Position = [100 100 760 480];
-            app.UIFigure.Name = 'MATLAB App';
+            app.UIFigure = uifigure('Visible', 'off', 'AutoResizeChildren', 'off');
+            app.UIFigure.Position = [100 100 760 520];
+            app.UIFigure.Name = "Best Powerball Number Generator";
+            app.UIFigure.Icon = "./resources/magic8.png";
+            app.UIFigure.SizeChangedFcn = @UIFigureSizeChanged;
 
             % Create uBestEverPowerballNumberGeneratoruLabel
             app.uBestEverPowerballNumberGeneratoruLabel = uilabel(app.UIFigure);
             app.uBestEverPowerballNumberGeneratoruLabel.HorizontalAlignment = 'center';
             app.uBestEverPowerballNumberGeneratoruLabel.FontSize = 28;
             app.uBestEverPowerballNumberGeneratoruLabel.Interpreter = 'html';
-            app.uBestEverPowerballNumberGeneratoruLabel.Position = [36 397 690 69];
+            app.uBestEverPowerballNumberGeneratoruLabel.Position = [(app.UIFigure.Position(3)/2 - 340) (app.UIFigure.Position(4)/2 + 140) 690 69];
             app.uBestEverPowerballNumberGeneratoruLabel.Text = '<u> Best Ever Powerball Number Generator* </u>';
+            app.uBestEverPowerballNumberGeneratoruLabel.Parent = app.UIFigure;
 
             % Create ImportHistoricalDataButton
             app.ImportHistoricalDataButton = uibutton(app.UIFigure, 'push');
             app.ImportHistoricalDataButton.ButtonPushedFcn = createCallbackFcn(app, @ImportHistoricalDataButtonPushed, true);
             app.ImportHistoricalDataButton.FontSize = 16;
-            app.ImportHistoricalDataButton.Position = [200 320 188 47];
+            app.ImportHistoricalDataButton.Position = [(app.UIFigure.Position(3)/2 - 180) (app.UIFigure.Position(4) - 200) 188 47];
             app.ImportHistoricalDataButton.Text = 'Import Historical Data';
 
             % Create OrganizeDataButton
             app.OrganizeDataButton = uibutton(app.UIFigure, 'push');
             app.OrganizeDataButton.ButtonPushedFcn = createCallbackFcn(app, @OrganizeDataButtonPushed, true);
             app.OrganizeDataButton.FontSize = 16;
-            app.OrganizeDataButton.Position = [200 240 188 47];
+            app.OrganizeDataButton.Position = [(app.UIFigure.Position(3)/2 - 180) (app.UIFigure.Position(4) - 280) 188 47];
             app.OrganizeDataButton.Text = 'Organize Data';
 
             % Create AnalyzeDataButton
             app.AnalyzeDataButton = uibutton(app.UIFigure, 'push');
             app.AnalyzeDataButton.ButtonPushedFcn = createCallbackFcn(app, @AnalyzeDataButtonPushed, true);
             app.AnalyzeDataButton.FontSize = 16;
-            app.AnalyzeDataButton.Position = [200 160 188 47];
+            app.AnalyzeDataButton.Position = [(app.UIFigure.Position(3)/2 - 180) (app.UIFigure.Position(4) - 360) 188 47];
             app.AnalyzeDataButton.Text = 'Analyze Data';
 
             % Create GiveMeSuggestionsButton
             app.GiveMeSuggestionsButton = uibutton(app.UIFigure, 'push');
             app.GiveMeSuggestionsButton.ButtonPushedFcn = createCallbackFcn(app, @GiveMeSuggestionsButtonPushed, true);
             app.GiveMeSuggestionsButton.FontSize = 16;
-            app.GiveMeSuggestionsButton.Position = [200 80 188 47];
+            app.GiveMeSuggestionsButton.Position = [(app.UIFigure.Position(3)/2 - 180) (app.UIFigure.Position(4) - 440) 188 47];
             app.GiveMeSuggestionsButton.Text = 'Give Me Suggestions';
 
             % Create Label_6
@@ -187,54 +233,54 @@ classdef App < matlab.apps.AppBase
             app.Label_6.Tag = 'Label_6';
             app.Label_6.HorizontalAlignment = 'center';
             app.Label_6.FontSize = 16;
-            app.Label_6.Position = [475 326 67 34];
+            app.Label_6.Position = [(app.UIFigure.Position(3)/2 + 100) (app.UIFigure.Position(4) - 190) 67 34];
             app.Label_6.Text = ' ';
 
             % Create Label_3
             app.Label_3 = uilabel(app.UIFigure);
             app.Label_3.HorizontalAlignment = 'center';
             app.Label_3.FontSize = 16;
-            app.Label_3.Position = [475 246 67 34];
+            app.Label_3.Position = [(app.UIFigure.Position(3)/2 + 100) (app.UIFigure.Position(4) - 270) 67 34];
             app.Label_3.Text = ' ';
 
             % Create Label_4
             app.Label_4 = uilabel(app.UIFigure);
             app.Label_4.HorizontalAlignment = 'center';
             app.Label_4.FontSize = 16;
-            app.Label_4.Position = [475 166 67 34];
+            app.Label_4.Position = [(app.UIFigure.Position(3)/2 + 100) (app.UIFigure.Position(4) - 350) 67 34];
             app.Label_4.Text = ' ';
 
             % Create Label_5
             app.Label_5 = uilabel(app.UIFigure);
             app.Label_5.HorizontalAlignment = 'center';
             app.Label_5.FontSize = 16;
-            app.Label_5.Position = [475 86 67 34];
+            app.Label_5.Position = [(app.UIFigure.Position(3)/2 + 100) (app.UIFigure.Position(4) - 430) 67 34];
             app.Label_5.Text = ' ';
 
             % Create Label
             app.Label = uilabel(app.UIFigure);
             app.Label.HorizontalAlignment = 'center';
-            app.Label.Position = [147 17 467 22];
+            app.Label.Position = [(app.UIFigure.Position(3)/2 - 235) (app.UIFigure.Position(4) - 500) 467 22];
             app.Label.Text = '* = odds are better than going to the cashier and asking for a random set of numbers.';
 
             % Create Image
             app.Image = uiimage(app.UIFigure);
-            app.Image.Position = [460 325 100 40];
+            app.Image.Position = [(app.UIFigure.Position(3)/2 + 80) (app.UIFigure.Position(4) - 195) 100 40];
             app.Image.ImageSource = fullfile(pathToMLAPP, 'resources', 'hzk6C.gif');
 
             % Create Image_2
             app.Image_2 = uiimage(app.UIFigure);
-            app.Image_2.Position = [460 245 100 40];
+            app.Image_2.Position = [(app.UIFigure.Position(3)/2 + 80) (app.UIFigure.Position(4) - 265) 100 40];
             app.Image_2.ImageSource = fullfile(pathToMLAPP, 'resources', 'hzk6C.gif');
 
             % Create Image_3
             app.Image_3 = uiimage(app.UIFigure);
-            app.Image_3.Position = [460 165 100 40];
+            app.Image_3.Position = [(app.UIFigure.Position(3)/2 + 80) (app.UIFigure.Position(4) - 355) 100 40];
             app.Image_3.ImageSource = fullfile(pathToMLAPP, 'resources', 'hzk6C.gif');
 
             % Create Image_4
             app.Image_4 = uiimage(app.UIFigure);
-            app.Image_4.Position = [460 85 100 40];
+            app.Image_4.Position = [(app.UIFigure.Position(3)/2 + 80) (app.UIFigure.Position(4) - 435) 100 40];
             app.Image_4.ImageSource = fullfile(pathToMLAPP, 'resources', 'hzk6C.gif');
 
             % Show the figure after all components are created
@@ -270,3 +316,50 @@ classdef App < matlab.apps.AppBase
         end
     end
 end
+
+% Dynamic spacing - Children are in opposite order of their creation
+function UIFigureSizeChanged(Figure, event)
+    
+    % uBestEverPowerballNumberGeneratoruLabel
+    Figure.Children(14).Position = [(Figure.Position(3)/2 - 340) (Figure.Position(4)/2 + 150) 690 69];
+    
+    % ImportHistoricalDataButton
+    Figure.Children(13).Position = [(Figure.Position(3)/2 - 180) (Figure.Position(4)/2 + 70) 188 47];
+    
+    % OrganizeDataButton
+    Figure.Children(12).Position = [(Figure.Position(3)/2 - 180) (Figure.Position(4)/2 - 10) 188 47];
+    
+    % AnalyzeDataButton
+    Figure.Children(11).Position = [(Figure.Position(3)/2 - 180) (Figure.Position(4)/2 - 90) 188 47];
+    
+    % GiveMeSuggestionsButton
+    Figure.Children(10).Position = [(Figure.Position(3)/2 - 180) (Figure.Position(4)/2 - 170) 188 47];
+    
+    % Label_6
+    Figure.Children(9).Position = [(Figure.Position(3)/2 + 100) (Figure.Position(4)/2 + 80) 67 34];
+    
+    % Label_3
+    Figure.Children(8).Position = [(Figure.Position(3)/2 + 100) (Figure.Position(4)/2 - 0) 67 34];
+    
+    % Label_4
+    Figure.Children(7).Position = [(Figure.Position(3)/2 + 100) (Figure.Position(4)/2 - 80) 67 34];
+    
+    % Label_5
+    Figure.Children(6).Position = [(Figure.Position(3)/2 + 100) (Figure.Position(4)/2 - 160) 67 34];
+    
+    % Label
+    Figure.Children(5).Position = [(Figure.Position(3)/2 - 235) (Figure.Position(4)/2 - 240) 467 22];
+    
+    % Image
+    Figure.Children(4).Position = [(Figure.Position(3)/2 + 80) (Figure.Position(4)/2 + 75) 100 40];
+    
+    % Image_2
+    Figure.Children(3).Position = [(Figure.Position(3)/2 + 80) (Figure.Position(4)/2 - 5) 100 40];
+    
+    % Image_3
+    Figure.Children(2).Position = [(Figure.Position(3)/2 + 80) (Figure.Position(4)/2 - 85) 100 40];
+    
+    % Image_4
+    Figure.Children(1).Position = [(Figure.Position(3)/2 + 80) (Figure.Position(4)/2 - 165) 100 40];
+end
+

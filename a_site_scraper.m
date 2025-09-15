@@ -4,7 +4,6 @@ function a_site_scraper()
 
     % Setup:
     clear
-    clc
 
     p = length(char(datetime("today")));
     kotoshi = extractAfter(char(datetime("today")), p-4);
@@ -12,8 +11,7 @@ function a_site_scraper()
     daterange = str2num(kotoshi) - 1992;
 
     % Get the data:
-    for u = 0:daterange        % This represents the years of Powerball data, should return errors. If not, increase year count.
-        
+    for u = 0:daterange        % This represents the years of Powerball data, should return errors. If not, increase year count.   
         try
     
             % Pull each year's data from powerball website
@@ -53,13 +51,7 @@ function a_site_scraper()
             fclose(fid);
     
         catch exception
-            
             warndlg("There has been some kind of error with the data, Onii-chan. Please look into it.", "Error");
-    
         end
-    
-        
     end
-
-    return;
 end

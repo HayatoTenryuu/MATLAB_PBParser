@@ -1,13 +1,21 @@
 %% This file takes that analysis and makes recommendations.
 
-function d_make_recommendation(w, r, fig, num)
+function d_make_recommendation(w, r, fig, m1, m2, mr, num, choice)
     
+    big1 = m1(1);
+    big1odds = m1(2);
+    big2 = m2(1);
+    big2odds = m2(2);
+    bigr = mr(1);
+    bigrodds = mr(2);
+
+    set(0,'DefaultFigureVisible','off');
+
     %----------------------
     % Get a Recommendation:
     %----------------------
-    
     [b1, b2, b3, b4, b5, br, b21, b22, b23, b24, b25, br2, ...
-        fig1, fig2] = recommendaccion(w, r, fig);
+        fig1, fig2] = recommendaccion(w, r, fig, big1, big2, bigr);
 
     sortedArray1 = sort([b1, b2, b3, b4, b5]);
     sortedArray2 = sort([b21, b22, b23, b24, b25]);
@@ -30,7 +38,7 @@ function d_make_recommendation(w, r, fig, num)
     % Rerun if too sequential:
     while ~go
         [b1, b2, b3, b4, b5, br, b21, b22, b23, b24, b25, br2, ...
-        fig1, fig2] = recommendaccion(w, r, fig);
+        fig1, fig2] = recommendaccion(w, r, fig, big1, big2, bigr);
 
         sortedArray1 = sort([b1, b2, b3, b4, b5]);
         sortedArray2 = sort([b21, b22, b23, b24, b25]);
@@ -54,7 +62,6 @@ function d_make_recommendation(w, r, fig, num)
     %-------------------------
     % Save the recommendation:
     %-------------------------
-
     locale = dir;
     last = length(locale);
     aru = false;
@@ -69,33 +76,64 @@ function d_make_recommendation(w, r, fig, num)
     if aru == false
         mkdir("Your Recommendations");  
     end
+
+    big1 = char(big1);
+    big2 = char(big2);
+    bigr = char(bigr);
+    big1odds = str2double(big1odds);
+    big2odds = str2double(big2odds);
+    bigrodds = str2double(bigrodds);
     
-        % Save Text
+    % Save Text
     fid = fopen("Your Recommendations\Numbers " + num + ".txt", "w+");
-    fprintf(fid, "With the 1, 2, 2 Schema: " + string(sortedArray1(1)) + ", " + ...
+    fprintf(fid, "With the " + big1(length(big1)-2) + ', ' + big1(length(big1)-1) + ', ' + ...
+        big1(length(big1)) + " Schema: " + string(sortedArray1(1)) + ", " + ...
         string(sortedArray1(2)) + ", " + string(sortedArray1(3)) + ", " + ...
         string(sortedArray1(4)) + ", " + string(sortedArray1(5)) + ", " + ...
         "with powerball number " + string(br));
     fprintf(fid, newline);
-    fprintf(fid, "With the 1, 1, 3 Schema: " + string(sortedArray2(1)) + ", " + ...
+    fprintf(fid, "With the " + big2(length(big2)-2) + ', ' + big2(length(big2)-1) + ', ' + ...
+        big2(length(big2)) + " Schema: " + string(sortedArray2(1)) + ", " + ...
         string(sortedArray2(2)) + ", " + string(sortedArray2(3)) + ", " + ...
         string(sortedArray2(4)) + ", " + string(sortedArray2(5)) + ", " + ...
         "with powerball number " + string(br2));
+    fprintf(fid, newline);
+    fprintf(fid, newline);
+    if choice == 1
+        fprintf(fid, "Schema " + big1(length(big1)-2) + ', ' + big1(length(big1)-1) + ', ' + ...
+            big1(length(big1)) + " was drawn " + round(big1odds, 2) + "% of the time so far this year.");
+        fprintf(fid, "Schema " + big2(length(big2)-2) + ', ' + big2(length(big2)-1) + ', ' + ...
+            big2(length(big2)) + " was drawn " + round(big2odds, 2) + "% of the time so far this year.");
+        fprintf(fid, "Schema " + bigr(length(bigr)) + " was drawn " + round(bigrodds, 2) + ...
+            "% of the time so far this year.");
+    else
+        fprintf(fid, "Schema " + big1(length(big1)-2) + ', ' + big1(length(big1)-1) + ', ' + ...
+            big1(length(big1)) + " was drawn " + round(big1odds, 2) + "% of the time overall.");
+        fprintf(fid, "Schema " + big2(length(big2)-2) + ', ' + big2(length(big2)-1) + ', ' + ...
+            big2(length(big2)) + " was drawn " + round(big2odds, 2) + "% of the time overall.");
+        fprintf(fid, "Schema " + bigr(length(bigr)) + " was drawn " + round(bigrodds, 2) + ...
+            "% of the time overall.");
     fclose(fid);
     
-        % Save Image
+    % Save Image
     filename = "Your Recommendations\Figure data version " + num + "-1.png";
     if isfile(filename)
         delete(filename);
     end
+    
+    fig1.Visible = 'on';
     saveas(fig1, filename);
-        
+    fig1.Visible = 'off';
+
     filename2 = "Your Recommendations\Figure data version " + num + "-2.png";
     if isfile(filename2)
         delete(filename2);
     end
-    saveas(fig2, filename2);
 
-    return;
+    fig2.Visible = 'on';
+    saveas(fig2, filename2);
+    fig2.Visible = 'off';
+    
+    set(0,'DefaultFigureVisible','on');
 
 end

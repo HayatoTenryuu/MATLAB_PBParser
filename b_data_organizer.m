@@ -4,7 +4,6 @@ function b_data_organizer()
 
     % Setup
     clear
-    clc
 
     if(length(pwd) == regexp(pwd, 'Projects') + length('Projects') - 1)
         cd 'PB Parser';
@@ -161,5 +160,4 @@ function b_data_organizer()
     end
     writetable(data2, filename,'Sheet',1,'Range','D4');
 
-    return;
 end
