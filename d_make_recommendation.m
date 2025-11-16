@@ -10,6 +10,7 @@ function d_make_recommendation(w, r, fig, m1, m2, mr, num, choice)
     bigrodds = mr(2);
 
     set(0,'DefaultFigureVisible','off');
+    
 
     %----------------------
     % Get a Recommendation:
@@ -85,7 +86,12 @@ function d_make_recommendation(w, r, fig, m1, m2, mr, num, choice)
     bigrodds = str2double(bigrodds);
     
     % Save Text
-    fid = fopen("Your Recommendations\Numbers " + num + ".txt", "w+");
+    if isunix
+        fid = fopen("Your Recommendations/Numbers " + num + ".txt", "w+");
+    else
+        fid = fopen("Your Recommendations\Numbers " + num + ".txt", "w+");
+    end
+
     fprintf(fid, "With the " + big1(length(big1)-2) + ', ' + big1(length(big1)-1) + ', ' + ...
         big1(length(big1)) + " Schema: " + string(sortedArray1(1)) + ", " + ...
         string(sortedArray1(2)) + ", " + string(sortedArray1(3)) + ", " + ...
@@ -101,22 +107,32 @@ function d_make_recommendation(w, r, fig, m1, m2, mr, num, choice)
     fprintf(fid, newline);
     if choice == 1
         fprintf(fid, "Schema " + big1(length(big1)-2) + ', ' + big1(length(big1)-1) + ', ' + ...
-            big1(length(big1)) + " was drawn " + round(big1odds, 2) + "% of the time so far this year.");
+            big1(length(big1)) + " was drawn " + round(big1odds, 2)*100 + "%% of the time so far this year.");
+        fprintf(fid, newline);
         fprintf(fid, "Schema " + big2(length(big2)-2) + ', ' + big2(length(big2)-1) + ', ' + ...
-            big2(length(big2)) + " was drawn " + round(big2odds, 2) + "% of the time so far this year.");
-        fprintf(fid, "Schema " + bigr(length(bigr)) + " was drawn " + round(bigrodds, 2) + ...
-            "% of the time so far this year.");
+            big2(length(big2)) + " was drawn " + round(big2odds, 2)*100 + "%% of the time so far this year.");
+        fprintf(fid, newline);
+        fprintf(fid, "Red Schema " + bigr(length(bigr)) + " was drawn " + round(bigrodds, 2)*100 + ...
+            "%% of the time so far this year.");
     else
         fprintf(fid, "Schema " + big1(length(big1)-2) + ', ' + big1(length(big1)-1) + ', ' + ...
-            big1(length(big1)) + " was drawn " + round(big1odds, 2) + "% of the time overall.");
+            big1(length(big1)) + " was drawn " + round(big1odds, 2)*100 + "%% of the time overall.");
+        fprintf(fid, newline);
         fprintf(fid, "Schema " + big2(length(big2)-2) + ', ' + big2(length(big2)-1) + ', ' + ...
-            big2(length(big2)) + " was drawn " + round(big2odds, 2) + "% of the time overall.");
-        fprintf(fid, "Schema " + bigr(length(bigr)) + " was drawn " + round(bigrodds, 2) + ...
-            "% of the time overall.");
+            big2(length(big2)) + " was drawn " + round(big2odds, 2)*100 + "%% of the time overall.");
+        fprintf(fid, newline);
+        fprintf(fid, "Red Schema " + bigr(length(bigr)) + " was drawn " + round(bigrodds, 2)*100 + ...
+            "%% of the time overall.");
+    end
     fclose(fid);
     
     % Save Image
-    filename = "Your Recommendations\Figure data version " + num + "-1.png";
+    if isunix
+        filename = "Your Recommendations/Figure data version " + num + "-1.png";
+    else
+        filename = "Your Recommendations\Figure data version " + num + "-1.png";
+    end
+
     if isfile(filename)
         delete(filename);
     end
@@ -125,7 +141,12 @@ function d_make_recommendation(w, r, fig, m1, m2, mr, num, choice)
     saveas(fig1, filename);
     fig1.Visible = 'off';
 
-    filename2 = "Your Recommendations\Figure data version " + num + "-2.png";
+    if isunix
+        filename2 = "Your Recommendations/Figure data version " + num + "-2.png";
+    else 
+        filename2 = "Your Recommendations\Figure data version " + num + "-2.png";
+    end
+    
     if isfile(filename2)
         delete(filename2);
     end

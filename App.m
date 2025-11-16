@@ -101,11 +101,11 @@ classdef App < matlab.apps.AppBase
             %fprintf("d is " + string(app.d) + newline);
             
             % Get number of recommendations from user:
-            fontformat = '\fontsize{9}';
-            prompt = {fontformat + "I will use the two best schemas, but " + ...
-                "would you like to use the recent best 2 or the overall best 2?"};
+            prompt = {"I will use the two best schemas, but would you like to use the recent " + ...
+                "best (" + app.d(1) + ", " + app.d(2) + ") or the overall best (" + app.d(7) + ...
+                ", " + app.d(8) + ")?"};
             dlgtitle = "Which top schemas should we use?";
-            optsa.Interpreter = 'tex';
+            optsa.Interpreter = 'none';
             optsa.WindowStyle = 'modal';
             optsa.Default='Recent Best';
             answer1 = questdlg(prompt, dlgtitle, 'Recent Best', 'Overall Best', 'Cancel', optsa);
@@ -170,7 +170,11 @@ classdef App < matlab.apps.AppBase
                 drawnow;
     
                 % Open output:
-                winopen(".\Your Recommendations\");
+                if isunix
+                    system("xdg-open ./Your\ Recommendations/");
+                else
+                    winopen(".\Your Recommendations\");
+                end
             end
         end
     end
@@ -188,7 +192,7 @@ classdef App < matlab.apps.AppBase
             app.UIFigure = uifigure('Visible', 'off', 'AutoResizeChildren', 'off');
             app.UIFigure.Position = [100 100 760 520];
             app.UIFigure.Name = "Best Powerball Number Generator";
-            app.UIFigure.Icon = "./resources/magic8.png";
+            app.UIFigure.Icon = fullfile(pathToMLAPP, 'resources', 'magic8.png');
             app.UIFigure.SizeChangedFcn = @UIFigureSizeChanged;
 
             % Create uBestEverPowerballNumberGeneratoruLabel

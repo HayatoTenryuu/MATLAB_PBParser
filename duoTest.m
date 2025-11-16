@@ -394,7 +394,13 @@ function biggy = duoTest(contents, startyear)
         
         % Save Text as likely/middle/unlikely sets
         fig1.Visible = 'on';                 % The figure remembers its visibility later
-        filename = "figure\Year " + num2str(d + (startyear - 1)) + " Schema Chart";
+        
+        if isunix
+            filename = "figure/Year " + num2str(d + (startyear - 1)) + " Schema Chart";
+        else 
+            filename = "figure\Year " + num2str(d + (startyear - 1)) + " Schema Chart";
+        end
+
         if isfile(filename)
             delete(filename);
         end
@@ -612,7 +618,13 @@ function biggy = duoTest(contents, startyear)
     
     % Save Text as likely/middle/unlikely sets
     fig2.Visible = 'on';
-    filename = "figure\Schema Performace Since " + string(startyear);
+
+    if isunix
+        filename = "figure/Schema Performace Since " + string(startyear);
+    else
+        filename = "figure\Schema Performace Since " + string(startyear);
+    end
+    
     if isfile(filename)
         delete(filename);
     end

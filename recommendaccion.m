@@ -86,7 +86,7 @@ function [b1, b2, b3, b4, b5, br, b21, b22, b23, b24, b25, br2, ...
     end
 
     % Second Schema
-    fig2.Name = "Data based on 1, 1, 3 Schema";
+    fig2.Name = "Data based on Second Schema";
     fig2.NumberTitle = "off";
     fig2.Position = [fig2.Position(1)-50, fig2.Position(2)- 80, 700, 600];
     fig2.Children(4, 1).Children.FaceColor = "flat";

@@ -44,9 +44,15 @@ function a_site_scraper()
             if aru == false
                 mkdir data;         
             end
-    
+            
             nama = "Powerball_Year_" + int2str(u) + ".html";
-            fid = fopen("data\" + nama, "w+");
+            
+            if isunix
+                fid = fopen("data/" + nama, "w+");
+            else
+                fid = fopen("data\" + nama, "w+");
+            end
+            
             fprintf(fid, stroo);
             fclose(fid);
     

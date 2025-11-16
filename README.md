@@ -30,7 +30,7 @@ but if you can't match anything, it's a waste of money. Winnings follow these ru
 ### How to use this project:
 1. Download all the files, obviously. Put them in a dedicated folder,
     as this will become your working folder.
-2. Run either App.mlapp or main.m - they are both the same thing.
+2. Run App.m.
 3. Click the buttons in order from top to bottom, making sure they finish
     before you click the next one. Also make sure you have internet. The first
     step is to download some reference data, after all.
@@ -38,8 +38,10 @@ but if you can't match anything, it's a waste of money. Winnings follow these ru
 5. Optional step, but it exists if you want it - you can see what kind of pattern the previous numbers fell as
     by opening the "figure\Powerball stats.xlsx" file. Numbers with a 1 next to them were the previous winning
     numbers, and columns are ordered by likely-medium-unlikely.
+    
+### Recent updates to this project:
+1. Now Linux compliant (I need to propagate these changes to other projects...)
+2. Some small quality of life improvements.
 
 ### Future updates (if I care to keep going):
-1. Identify the most common pattern of number pulls historically - whether it tends to pull 2 from medium, 2 from
-    unlikely, and 1 from likely, or different patters from different years, etc (year 1 will not have data). This
-    feature would have both yearly and total versions being output.
+

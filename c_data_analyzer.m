@@ -20,9 +20,17 @@ function [w, r, fig, big] = c_data_analyzer()
     %--------------------
     % Import Total data:
     %--------------------
-    fid = fopen("excel\Powerball total data.xlsx", "r");                                  % Open as read-only so you don't make the data files empty
-    contents = readtable("excel\Powerball total data.xlsx", Range = "D5:J1500", ...
-        ReadVariableNames=true, VariableNamingRule="preserve");                           % Import the file's text
+    if isunix
+        fid = fopen("excel/Powerball total data.xlsx", "r");                                  % Open as read-only so you don't make the data files empty
+        contents = readtable("excel/Powerball total data.xlsx", Range = "D5:J1500", ...
+            ReadVariableNames=true, VariableNamingRule="preserve");                           % Import the file's text
+    else
+        fid = fopen("excel\Powerball total data.xlsx", "r");                                  % Open as read-only so you don't make the data files empty
+        contents = readtable("excel\Powerball total data.xlsx", Range = "D5:J1500", ...
+            ReadVariableNames=true, VariableNamingRule="preserve");                           % Import the file's text
+   
+    end
+    
     fclose(fid);                                                                          % Let go of the file once the data is imported
     
     %-------------------------
@@ -59,7 +67,12 @@ function [w, r, fig, big] = c_data_analyzer()
     end
     
     % Save Text as likely/middle/unlikely sets
-    filename = "figure\Powerball stats.xlsx";
+    if isunix
+        filename = "figure/Powerball stats.xlsx";
+    else
+        filename = "figure\Powerball stats.xlsx";
+    end
+    
     if isfile(filename)
         delete(filename);
     end
@@ -116,7 +129,13 @@ function [w, r, fig, big] = c_data_analyzer()
     
     % Save Image
     fig.Visible = "on";
-    filename = "figure\Powerball figure data.png";
+
+    if isunix
+        filename = "figure/Powerball figure data.png";
+    else
+        filename = "figure\Powerball figure data.png";
+    end
+    
     if isfile(filename)
         delete(filename);
     end

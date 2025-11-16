@@ -26,10 +26,14 @@ function b_data_organizer()
         rbArray = {};
     
         try 
-    
-            fid = fopen("data\Powerball_Year_" + int2str(u) + ".html", "r");        % Open as read-only so you don't make the data files empty
-            contents = fileread("data\Powerball_Year_" + int2str(u) + ".html");     % Import the file's text
-            
+            if isunix
+                fid = fopen("data/Powerball_Year_" + int2str(u) + ".html", "r");        % Open as read-only so you don't make the data files empty
+                contents = fileread("data/Powerball_Year_" + int2str(u) + ".html");     % Import the file's text
+            else
+                fid = fopen("data\Powerball_Year_" + int2str(u) + ".html", "r");        % Open as read-only so you don't make the data files empty
+                contents = fileread("data\Powerball_Year_" + int2str(u) + ".html");     % Import the file's text
+            end
+
             search_line_a = '<a class="archive-box" href="/numbers/';               % Date keyword search
             search_line_b = '<div class="ball">';                                   % White Ball keyword search
             search_line_c = '<div class="powerball">';                              % Red Ball keyword search
@@ -137,14 +141,25 @@ function b_data_organizer()
         if aru == false
             mkdir excel;   
         elseif (aru == true) && (u == 0)
-            rmdir("excel\", "s");
+            if isunix
+                rmdir("excel/", "s");
+            else
+                rmdir("excel\", "s");
+            end
+
             mkdir excel;
         end
     
-        filename = "excel\Powerball " + int2str(u + 1992) + " data.xlsx";
+        if isunix
+            filename = "excel/Powerball " + int2str(u + 1992) + " data.xlsx";
+        else 
+            filename = "excel\Powerball " + int2str(u + 1992) + " data.xlsx";
+        end
+        
         if isfile(filename)
             delete(filename);
         end
+
         writetable(data,filename,'Sheet',1,'Range','D4');
     
     end
@@ -154,10 +169,16 @@ function b_data_organizer()
     data2 = [headers; data2];
     data2 = table(data2, 'VariableNames', " ");
     
-    filename = "excel\Powerball total data.xlsx";
+    if isunix
+        filename = "excel/Powerball total data.xlsx";
+    else 
+        filename = "excel\Powerball total data.xlsx";
+    end
+    
     if isfile(filename)
         delete(filename);
     end
+    
     writetable(data2, filename,'Sheet',1,'Range','D4');
 
 end
